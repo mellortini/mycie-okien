@@ -57,7 +57,7 @@ main,footer,.nav{position:relative;z-index:1}
 .panel{background:var(--glass);border-radius:28px;box-shadow:var(--shadow),inset 0 0 0 1px rgba(255,255,255,.6)}
 
 /* HERO */
-.hero{display:flex;align-items:center;padding:150px 0 90px}
+.hero{display:flex;align-items:center;padding:150px 0 90px;overflow-x:clip} /* ramki .clip wystają w bok – nie mogą poszerzać strony na telefonie */
 .hero-card{max-width:1000px}
 /* tekst "za brudną szybą": ostra warstwa nad linią gumy, rozmyta pod nią */
 .hero-stack{display:grid}
@@ -140,15 +140,16 @@ h2{font-size:clamp(1.8rem,3vw,2.6rem);line-height:1.12;letter-spacing:-.03em;col
 .promo li{display:flex;gap:.5rem;align-items:center}.promo li .ic{color:var(--aqua)}
 @media (max-width:860px){.price-grid{grid-template-columns:1fr}}
 
-.owner{display:grid;grid-template-columns:.8fr 1.2fr;gap:3rem;align-items:center}
+.owner{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:3rem;align-items:center}
 .portrait{aspect-ratio:4/5;border-radius:22px;background:linear-gradient(160deg,#bfe8f4,#e9f6fb);position:relative;overflow:hidden}
 .portrait svg{position:absolute;inset:auto 0 0;width:100%;height:auto}
 .portrait .tag{position:absolute;left:16px;top:16px;background:#fff;border-radius:12px;padding:.5rem .8rem;font-weight:700;font-size:.84rem;color:var(--navy);box-shadow:0 8px 20px -12px rgba(10,37,64,.5)}
 blockquote{font-size:clamp(1.15rem,1.9vw,1.45rem);line-height:1.45;color:var(--navy);font-weight:600;letter-spacing:-.01em;margin:1rem 0 1.3rem;padding-left:1.2rem;border-left:4px solid var(--aqua)}
 .sign{font-weight:800;color:var(--navy)}.sign small{display:block;font-weight:500;color:var(--muted)}
 .checks{list-style:none;display:grid;grid-template-columns:1fr 1fr;gap:.7rem 1.2rem;margin-top:1.6rem}
-.checks li{display:flex;gap:.55rem;font-weight:600;font-size:.94rem;color:var(--navy2)}.checks .ic{color:var(--aqua)}
-@media (max-width:860px){.owner{grid-template-columns:1fr}.portrait{max-width:380px}}
+.checks li{display:flex;gap:.55rem;min-width:0;overflow-wrap:anywhere;font-weight:600;font-size:.94rem;color:var(--navy2)}.checks .ic{color:var(--aqua)}
+@media (max-width:860px){.owner{grid-template-columns:minmax(0,1fr)}.portrait{width:100%;max-width:380px}}
+@media (max-width:480px){.checks{grid-template-columns:minmax(0,1fr)}}
 
 .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem}
 .rev{background:#fff;border-radius:var(--r);padding:1.6rem}
