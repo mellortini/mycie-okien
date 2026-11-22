@@ -447,7 +447,8 @@ const LOW = matchMedia('(pointer: coarse)').matches || (navigator.hardwareConcur
 let quality = LOW ? 1 : 2;                       // 2 = pełna, 1 = oszczędna, 0 = minimalna (spada sama, gdy klatki są wolne)
 const MAX_PIXELS = LOW ? 1.6e6 : 3.2e6;          // limit pikseli płótna (np. 4K przy wysokim DPR)
 const pixelRatio = (w, h) => {
-  const want = quality === 2 ? Math.min(devicePixelRatio, 1.25) : quality === 1 ? 1 : .75;
+  // telefon: ekran 3x – render 1x dawał poszarpaną gumę ściągaczki; tło do 2x (limit MAX_PIXELS pilnuje kosztu)
+  const want = quality === 2 ? Math.min(devicePixelRatio, 1.25) : quality === 1 ? (LOW ? Math.min(devicePixelRatio, 2) : 1) : (LOW ? 1 : .75);
   return Math.min(want, Math.sqrt(MAX_PIXELS / Math.max(1, w * h)));
 };
 
@@ -464,7 +465,7 @@ const pmrem = new THREE.PMREMGenerator(renderer);
 scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
 const envBg = scene.environment;
 // warstwa z ręką nad tekstem hero – rysowana tylko w prostokącie hero (scissor), przezroczysta poza nim
-const fgR = new THREE.WebGLRenderer({ antialias: !LOW, alpha: true });
+const fgR = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // mała warstwa – wygładzanie zawsze (ostra krawędź gumy)
 fgR.outputColorSpace = THREE.SRGBColorSpace;
 fgR.toneMapping = THREE.ACESFilmicToneMapping;
 fgR.setClearColor(0x000000, 0);
@@ -665,7 +666,7 @@ function resize() {
   // rozmiar warstwy tła bez paska przewijania (innerWidth go zawiera -> rozjazd z warstwą ręki)
   const w = host.clientWidth, h = host.clientHeight; viewW = w; viewH = h;
   const pr = pixelRatio(w, h);
-  renderer.setPixelRatio(pr); fgR.setPixelRatio(pr);
+  renderer.setPixelRatio(pr);
   renderer.setSize(w, h, false);
   camera.aspect = w / h; camera.updateProjectionMatrix();
   VW = VH * camera.aspect;
@@ -698,7 +699,10 @@ let kIntro = .4, intro = 0, introDoneAt = 0;
 const measure = () => {
   const r = stack.getBoundingClientRect();
   stackTop = r.top + scrollY; stackH = r.height; stackLeft = r.left; stackW = r.width;
-  fgW = Math.round(r.width + 80); fgH = Math.round(r.height + 80); fgX = r.left - 40; fgR.setSize(fgW, fgH, false);
+  fgW = Math.round(r.width + 80); fgH = Math.round(r.height + 80); fgX = r.left - 40;
+  // warstwa ręki obejmuje tylko hero – może mieć pełną ostrość ekranu (do 2,5x, max ok. 1,5 mln pikseli)
+  fgR.setPixelRatio(quality === 0 ? 1 : Math.min(devicePixelRatio, 2.5, Math.sqrt(1.5e6 / Math.max(1, fgW * fgH))));
+  fgR.setSize(fgW, fgH, false);
   fgBox.style.width = fgW + 'px'; fgBox.style.height = fgH + 'px'; // dokładnie tyle, ile renderujemy – bez skalowania
   [clipS, clipB] = [stack.querySelector(".clip.s"), stack.querySelector(".clip.b")];
   clipSi = clipS.firstElementChild; clipBi = clipB.firstElementChild;
@@ -728,8 +732,10 @@ const onTouch = (e) => {
   if (!blocking() || ty === null) return releaseIntro();
   e.preventDefault();
   const y = e.touches[0].clientY, d = ty - y; ty = y;
-  if (d > 0 && introActive()) step(d / 260);
+  if (d > 0 && introActive()) step(d / 140);
 };
+// palec puszczony w trakcie wstępu: guma sama kończy przejazd przez tekst (bez kolejnych przesunięć)
+addEventListener("touchend", () => { if (introActive() && intro > .12) step(1); }, { passive: true });
 addEventListener("touchmove", onTouch, { passive: false });
 let released = false;
 function releaseIntro() {
@@ -773,7 +779,7 @@ function frame(now) {
   if (reduce) shown = target;
   else {
     // wolniejsza sprężyna: na wstępie (odsłanianie tekstu) bardzo łagodnie, potem trochę żwawiej
-    const K = intro < 1 || shown < kIntro * WIPE_END ? 9 : 16, acc = K * (target - shown) - 2 * Math.sqrt(K) * vel;
+    const K = intro < 1 || shown < kIntro * WIPE_END ? 12 : 16, acc = K * (target - shown) - 2 * Math.sqrt(K) * vel;
     vel += acc * dt; shown += vel * dt;
     if (shown >= target || Math.abs(target - shown) < 1e-5) { shown = target; vel = 0; }
   }
