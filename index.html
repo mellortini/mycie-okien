@@ -81,10 +81,6 @@ h1 em{font-style:normal;background:linear-gradient(90deg,var(--aqua),#3fc6e6);-w
 .cta-row{display:flex;flex-wrap:wrap;gap:.75rem;margin-bottom:1.6rem}
 .badges{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;list-style:none;font-size:.88rem;font-weight:600;color:var(--navy2)}
 .badges li{display:flex;align-items:center;gap:.45rem}.badges .ic{color:var(--aqua)}
-.hint{display:flex;align-items:center;gap:.6rem;margin-top:1.6rem;font-size:.74rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.hint .mouse{width:20px;height:31px;border:2px solid currentColor;border-radius:11px;position:relative;flex:none}
-.hint .mouse::after{content:"";position:absolute;left:50%;top:5px;width:3px;height:6px;margin-left:-1.5px;border-radius:2px;background:currentColor;animation:wheel 1.6s infinite}
-@keyframes wheel{0%{opacity:0;transform:translateY(-3px)}40%{opacity:1}100%{opacity:0;transform:translateY(8px)}}
 @media (max-width:700px){
   .hero{padding:100px 0 48px}
   .hero-card h1{font-size:clamp(2rem,9vw,2.8rem);margin-bottom:1rem}
@@ -237,7 +233,6 @@ footer b{color:var(--navy)}
           <li><svg class="ic" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>OC 500 tys. zł</li>
           <li><svg class="ic" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-check"/></svg>Ekologiczne środki</li>
         </ul>
-        <div class="hint" id="hint"><span class="mouse"></span>Przewijaj – umyjemy szybę</div>
       </div></div>
     </div>
   </div>
@@ -438,7 +433,6 @@ import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.j
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
 const host = document.getElementById('bg');
-const hint = document.getElementById('hint');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // ---------- Jakość zależna od urządzenia ----------
@@ -763,7 +757,7 @@ const readScroll = () => {
   const p = intro < 1 ? p0 : p0 + (1 - p0) * s / Math.max(range, 1);
   target = Math.max(target, THREE.MathUtils.clamp(p, 0, 1));
   const hs = intro >= 1 ? 1 : 0;
-  if (hs !== hintState) { hintState = hs; hint.style.opacity = hs ? .35 : 1; if (hs) setTimeout(releaseIntro, 500); }
+  if (hs !== hintState) { hintState = hs; if (hs) setTimeout(releaseIntro, 500); }
 };
 addEventListener('scroll', readScroll, { passive: true });
 
