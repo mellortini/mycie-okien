@@ -1,0 +1,8 @@
+// Cloudflare Workers – statyczna strona (index.html + assets/), bez kroku budowania
+{
+  "name": "mycie-okien",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "."
+  }
+}

@@ -1,0 +1,6 @@
+# Pliki, ktorych Cloudflare nie publikuje jako czesci strony
+.git
+.assetsignore
+wrangler.jsonc
+serve.mjs
+README.md
